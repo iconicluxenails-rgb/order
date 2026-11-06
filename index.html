@@ -1,0 +1,775 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#000000">
+<title>Request your set · Iconic Luxe Nails</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #000000; --card: #0f0f0f; --tint: #1a1a1a; --field: #141414;
+    --line: #242424; --line-2: #3a3a3a;
+    --text: #ffffff; --text-2: #d6d6d6; --muted: #9b9b9b;
+    --pink: #E0218A;        /* brand: accents, borders, focus */
+    --pink-text: #F04FA3;   /* pink for small text on black (easier to read) */
+    --pink-fill: #C81A7A;   /* pink behind white text (meets contrast) */
+    --pink-glow: rgba(224, 33, 138, .22);
+    --err: #FF8FBF;
+    --r: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); color: var(--text); }
+  body { font: 400 16px/1.5 'DM Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 22px 16px 120px; }
+
+  header { text-align: center; margin-bottom: 24px; }
+  .logo { display: block; margin: 0 auto; width: 100%; max-width: 280px; height: auto; }
+  .wordmark { font: 700 22px/1 'Playfair Display', Georgia, serif; letter-spacing: .22em; text-transform: uppercase; }
+  .tag { margin-top: 10px; font-size: 11px; letter-spacing: .24em; text-transform: uppercase; color: var(--muted); }
+  .tag i { color: var(--pink); font-style: normal; }
+
+  /* progress */
+  .progress { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 10px; }
+  .progress span { height: 3px; border-radius: 3px; background: var(--line-2); transition: background .3s; }
+  .progress span.on { background: var(--pink); }
+  .steplabel { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); letter-spacing: .06em; margin-bottom: 20px; }
+  .steplabel b { color: var(--text); font-weight: 600; }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 26px 22px; }
+  h1 { font: 400 30px/1.15 'Playfair Display', Georgia, serif; margin-bottom: 8px; }
+  h1 em { font-style: italic; color: var(--pink-text); }
+  .lede { color: var(--text-2); margin-bottom: 22px; }
+  h2 { font: 600 12px/1 'DM Sans', system-ui, sans-serif; letter-spacing: .16em; text-transform: uppercase; margin: 26px 0 12px; color: var(--muted); }
+
+  label.f { display: block; font-size: 14px; font-weight: 500; margin: 16px 0 6px; color: var(--text); }
+  label.f small { font-weight: 400; color: var(--muted); }
+  input[type=text], input[type=email], input[type=tel], input[type=number], input[type=date], select, textarea {
+    width: 100%; font: inherit; color: var(--text); background: var(--field); border: 1px solid var(--line-2);
+    border-radius: 10px; padding: 12px 14px; outline: none; transition: border-color .2s, box-shadow .2s; -webkit-appearance: none; appearance: none;
+  }
+  ::placeholder { color: #6f6f6f; }
+  select { background-image: linear-gradient(45deg, transparent 50%, var(--text-2) 50%), linear-gradient(135deg, var(--text-2) 50%, transparent 50%);
+    background-position: calc(100% - 18px) 52%, calc(100% - 13px) 52%; background-size: 5px 5px; background-repeat: no-repeat; padding-right: 34px; }
+  select option { background: #141414; color: #fff; }
+  input:focus, select:focus, textarea:focus { border-color: var(--pink); box-shadow: 0 0 0 3px var(--pink-glow); }
+  textarea { min-height: 120px; resize: vertical; }
+  .invalid { border-color: var(--err) !important; box-shadow: 0 0 0 3px rgba(255, 143, 191, .15) !important; }
+
+  /* choice cards */
+  .choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+  .choice { position: relative; border: 1px solid var(--line-2); border-radius: 12px; padding: 16px 14px; cursor: pointer; background: var(--field); transition: all .2s; text-align: left; font: inherit; color: inherit; }
+  .choice b { display: block; font-weight: 600; margin-bottom: 3px; }
+  .choice span { font-size: 13px; color: var(--muted); }
+  .choice:hover { border-color: #5a5a5a; }
+  .choice[aria-pressed=true] { border-color: var(--pink); background: linear-gradient(180deg, rgba(224,33,138,.16), rgba(224,33,138,.06)); box-shadow: inset 0 0 0 1px var(--pink); }
+  .choice[aria-pressed=true] span { color: var(--text-2); }
+  .choice[aria-pressed=true]::after { content: '✓'; position: absolute; top: 10px; right: 12px; width: 20px; height: 20px; border-radius: 50%; background: var(--pink-fill); color: #fff; font-size: 12px; line-height: 20px; text-align: center; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { font: inherit; font-size: 14px; border: 1px solid var(--line-2); background: var(--field); color: var(--text); padding: 9px 15px; border-radius: 999px; cursor: pointer; transition: all .15s; }
+  .chip:hover { border-color: #5a5a5a; }
+  .chip[aria-pressed=true] { background: var(--pink-fill); border-color: var(--pink); color: #fff; }
+  .chip.ghost { border-style: dashed; color: var(--text-2); }
+  .chip.ghost[aria-pressed=true] { color: #fff; border-style: solid; }
+  .auto { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 13px; color: var(--pink-text); }
+
+  .phone { display: grid; grid-template-columns: 138px 1fr; gap: 8px; }
+  .check { display: flex; gap: 12px; align-items: flex-start; margin-top: 14px; font-size: 14px; color: var(--text-2); cursor: pointer; }
+  .check input { width: 20px; height: 20px; margin-top: 1px; accent-color: var(--pink); flex: none; }
+
+  /* hands */
+  .hands { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 6px; }
+  .hand { background: var(--tint); border-radius: 12px; padding: 14px 12px; }
+  .hand h3 { font: italic 400 17px 'Playfair Display', Georgia, serif; margin-bottom: 10px; }
+  .finger { display: grid; grid-template-columns: 62px 1fr; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .finger label { font-size: 13px; color: var(--text-2); }
+  .finger select, .finger input { padding: 9px 10px; font-size: 15px; }
+  .finger select { padding-right: 28px; background-position: calc(100% - 14px) 52%, calc(100% - 9px) 52%; }
+  .tiny { font-size: 13px; color: var(--muted); }
+  .linkbtn { background: none; border: 0; font: inherit; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; color: var(--pink-text); cursor: pointer; padding: 0; margin-top: 10px; }
+  .kitok { margin-top: 10px; font-size: 14px; color: var(--text); }
+  .kitok::first-letter { color: var(--pink-text); }
+  .kitbad { margin-top: 10px; font-size: 14px; color: var(--err); }
+  .tip { background: var(--tint); border-left: 2px solid var(--pink); border-radius: 0 12px 12px 0; padding: 14px; font-size: 14px; color: var(--text-2); margin-top: 14px; }
+  .tip b { color: var(--text); }
+  .panel { margin-top: 18px; }
+
+  /* tutorial video */
+  .vidbtn { display: flex; width: 100%; align-items: center; gap: 12px; margin-top: 14px; padding: 12px 14px; border: 1px solid var(--line-2); border-radius: 12px; background: var(--field); color: var(--text); font: inherit; font-size: 14px; cursor: pointer; text-align: left; }
+  .vidbtn:hover { border-color: var(--pink); }
+  .vidbtn .play { flex: none; width: 34px; height: 34px; border-radius: 50%; background: var(--pink-fill); display: grid; place-items: center; }
+  .vidbtn .play::before { content: ''; margin-left: 3px; border-style: solid; border-width: 7px 0 7px 11px; border-color: transparent transparent transparent #fff; }
+  .vidbtn small { display: block; color: var(--muted); font-size: 12px; }
+  .video { position: relative; margin-top: 12px; border-radius: 12px; overflow: hidden; background: #000; aspect-ratio: 16 / 9; border: 1px solid var(--line); }
+  .video.tall { aspect-ratio: 9 / 16; max-height: 70vh; margin-left: auto; margin-right: auto; }
+  .video iframe, .video video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; object-fit: contain; background: #000; }
+  .video.tall { max-width: 360px; }
+
+  /* photos */
+  .drop { display: block; border: 1.5px dashed var(--line-2); border-radius: 12px; padding: 26px 16px; text-align: center; cursor: pointer; transition: border-color .2s, background .2s; background: var(--field); }
+  .drop:hover, .drop.over { border-color: var(--pink); background: rgba(224,33,138,.06); }
+  .drop b { display: block; font-weight: 600; margin-bottom: 4px; }
+  .thumbs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
+  .thumb { position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: var(--tint); }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .thumb button { position: absolute; top: 5px; right: 5px; width: 26px; height: 26px; border-radius: 50%; border: 0; background: rgba(0,0,0,.8); color: #fff; font-size: 15px; line-height: 26px; cursor: pointer; }
+
+  /* review */
+  .review dl { display: grid; grid-template-columns: 120px 1fr; gap: 10px 14px; font-size: 15px; }
+  .review dt { color: var(--muted); }
+  .review dd { color: var(--text); word-break: break-word; }
+  .note { border-left: 2px solid var(--pink); padding: 4px 0 4px 14px; margin-top: 22px; color: var(--text-2); font-size: 14px; }
+
+  /* nav */
+  .nav { position: fixed; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.9); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-top: 1px solid var(--line); padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); }
+  .nav .in { max-width: 640px; margin: 0 auto; display: flex; gap: 10px; align-items: center; }
+  .btn { font: 600 15px 'DM Sans', system-ui, sans-serif; letter-spacing: .04em; border-radius: 999px; padding: 15px 22px; cursor: pointer; border: 1px solid var(--line-2); transition: opacity .2s, background .2s; }
+  .btn.primary { background: var(--pink-fill); border-color: var(--pink); color: #fff; flex: 1; }
+  .btn.primary:hover { background: #B3166D; }
+  .btn.quiet { background: transparent; color: var(--text); }
+  .btn:disabled { opacity: .45; cursor: default; }
+  .err { color: var(--err); font-size: 14px; margin-top: 16px; min-height: 20px; }
+
+  /* done */
+  .done { text-align: center; }
+  .done .ref { display: inline-block; margin: 12px 0 22px; font: 600 14px 'DM Sans', system-ui, sans-serif; letter-spacing: .18em; border: 1px solid var(--pink); color: var(--pink-text); border-radius: 999px; padding: 8px 16px; }
+  .timeline { text-align: left; margin: 10px auto 0; max-width: 420px; }
+  .tl { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding-bottom: 18px; position: relative; }
+  .tl:not(:last-child)::before { content: ''; position: absolute; left: 13px; top: 28px; bottom: 2px; width: 1px; background: var(--line-2); }
+  .dot { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line-2); display: grid; place-items: center; font-size: 13px; background: var(--field); color: var(--muted); }
+  .tl.now .dot { background: var(--pink-fill); border-color: var(--pink); color: #fff; }
+  .tl b { display: block; font-weight: 600; }
+  .tl span { font-size: 14px; color: var(--muted); }
+  .sending { text-align: center; padding: 40px 0; }
+  .spinner { width: 34px; height: 34px; border: 2px solid var(--line-2); border-top-color: var(--pink); border-radius: 50%; margin: 0 auto 16px; animation: spin 0.9s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  [hidden] { display: none !important; }
+
+  @media (max-width: 420px) {
+    h1 { font-size: 26px; }
+    .tag { letter-spacing: .14em; font-size: 10px; }
+    .wordmark { font-size: 19px; }
+    .logo { max-width: 230px; }
+    .card { padding: 22px 16px; }
+    .hands { grid-template-columns: 1fr; }
+    .review dl { grid-template-columns: 1fr; gap: 2px; }
+    .review dd { margin-bottom: 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img class="logo" id="logo" alt="Iconic Luxe Nails" src="logo-white.png" width="640" height="342">
+    <div class="wordmark" id="bizname" hidden>Iconic Luxe Nails</div>
+    <div class="tag">Handpainted <i>·</i> Customisable <i>·</i> Multi-wear</div>
+  </header>
+
+  <section class="card" id="loading" hidden>
+    <div class="sending"><div class="spinner"></div><p id="loadingMsg">Loading…</p></div>
+  </section>
+
+  <div id="progressWrap">
+    <div class="progress" id="progress"><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="steplabel"><span id="stepName"></span><span id="stepCount"></span></div>
+  </div>
+
+  <!-- STEP 1: about you -->
+  <section class="card step" data-step="1" data-name="About you">
+    <h1>Let's start <em>your set</em></h1>
+    <p class="lede">A few details so we can design around you. It takes about three minutes.</p>
+
+    <div class="choices" role="group" aria-label="Have you ordered before?">
+      <button type="button" class="choice" data-client="new" aria-pressed="false"><b>I'm new here</b><span>First set with us</span></button>
+      <button type="button" class="choice" data-client="returning" aria-pressed="false"><b>I've ordered before</b><span>Welcome back</span></button>
+    </div>
+
+    <label class="f" for="name">Your name</label>
+    <input type="text" id="name" autocomplete="name">
+
+    <h2>Best way to reach you</h2>
+    <div class="chips" id="contactChips"></div>
+    <p class="tiny" id="returnHint" style="margin-top:8px" hidden>Use the same number, Instagram or email as last time so we can find your sizes.</p>
+
+    <label class="f" for="phone">Mobile number <small id="phoneHint">(optional)</small></label>
+    <div class="phone">
+      <select id="countryCode" aria-label="Country code"></select>
+      <input type="tel" id="phone" autocomplete="tel-national" inputmode="tel" placeholder="900 1234">
+    </div>
+    <label class="f" for="instagram">Instagram <small id="igHint">(optional)</small></label>
+    <input type="text" id="instagram" placeholder="@yourhandle" autocapitalize="off" autocorrect="off">
+    <label class="f" for="email">Email <small id="emailHint">(optional)</small></label>
+    <input type="email" id="email" autocomplete="email" inputmode="email">
+    <div class="hp" aria-hidden="true"><label>Website <input type="text" id="website" tabindex="-1" autocomplete="off"></label></div>
+
+    <label class="check"><input type="checkbox" id="consentStore"><span>I'm happy for <span class="bn">Iconic Luxe Nails</span> to keep my contact details and nail sizes on file for my orders.</span></label>
+    <label class="check"><input type="checkbox" id="consentMarketing"><span>Send me new drops and offers now and then. <small class="tiny">(optional, unsubscribe any time)</small></span></label>
+  </section>
+
+  <!-- STEP 2: sizes -->
+  <section class="card step" data-step="2" data-name="Your fit" hidden>
+    <h1>Your <em>perfect fit</em></h1>
+    <p class="lede" id="sizeLede">Every set is made to your nails, so sizing comes first.</p>
+
+    <div class="choices" id="sizeChoices" role="group" aria-label="How would you like to give your sizes?"></div>
+
+    <!-- kit -->
+    <div id="kitPanel" class="panel" hidden>
+      <div data-video="kit"></div>
+      <label class="f" for="kitCode">Code on your sizing kit <small>(e.g. A1)</small></label>
+      <input type="text" id="kitCode" autocapitalize="characters" autocomplete="off">
+      <div id="kitMsg"></div>
+      <div id="kitSizes" hidden>
+        <p class="tiny" style="margin-top:14px">Choose the kit size that fit each nail best. If you were between two, pick the bigger one.</p>
+        <div class="hands" id="kitHands"></div>
+      </div>
+    </div>
+
+    <!-- measured -->
+    <div id="mmPanel" class="panel" hidden>
+      <div data-video="measured"></div>
+      <div class="tip"><b>How to measure:</b> lay a strip of paper or soft tape across the widest part of each nail, side to side, mark the edges, then measure it against a ruler in millimetres. Halves are fine, like 14.5.</div>
+      <div class="hands" id="mmHands" style="margin-top:14px"></div>
+      <button type="button" class="linkbtn" id="copyHands">Same on both hands? Copy left to right</button>
+    </div>
+
+    <!-- request a kit -->
+    <div id="requestPanel" class="panel" hidden>
+      <div class="tip"><b>No problem, we'll get a sizing kit to you.</b> Finish the rest of the form now. When we message you, we'll arrange your kit. Once you've tried it on, send us your kit code and sizes and we'll confirm your set.</div>
+      <label class="f" for="kitWhere">Where should we send it? <small>(town or area, or "pick up" · optional)</small></label>
+      <input type="text" id="kitWhere" maxlength="120" placeholder="e.g. Tamavua, Suva">
+    </div>
+
+    <div id="onfilePanel" class="panel" hidden>
+      <div class="tip">We'll use the sizes we have on file for you. If your nails have changed, choose another option instead.</div>
+    </div>
+  </section>
+
+  <!-- STEP 3: style -->
+  <section class="card step" data-step="3" data-name="Your style" hidden>
+    <h1>Shape &amp; <em>length</em></h1>
+    <p class="lede">Choose what you love. Not sure? We'll help you decide.</p>
+    <h2>Shape</h2>
+    <div class="chips" id="styleChips"></div>
+    <div id="lengthWrap" hidden>
+      <h2>Length</h2>
+      <div class="chips" id="lengthChips"></div>
+    </div>
+    <p class="auto" id="autoNote" hidden>✦ Picked from your sizing kit. Tap another to change it.</p>
+    <h2>The details</h2>
+    <label class="f" for="comments">Tell us about the look <small>(colours, finish, occasion, anything)</small></label>
+    <textarea id="comments" maxlength="2000" placeholder="Soft nude base with gold foil accents, for my sister's wedding…"></textarea>
+    <label class="f" for="neededBy">Need them by a date? <small>(optional)</small></label>
+    <input type="date" id="neededBy">
+  </section>
+
+  <!-- STEP 4: inspiration -->
+  <section class="card step" data-step="4" data-name="Inspiration" hidden>
+    <h1>Show us <em>the vibe</em></h1>
+    <p class="lede">Screenshots, Pinterest saves, your outfit, a colour you love. Up to <span id="maxPhotos">8</span> photos.</p>
+    <label class="drop" id="drop">
+      <input type="file" id="files" accept="image/*" multiple hidden>
+      <b>Add photos</b><span class="tiny">Tap to choose, or drag them here</span>
+    </label>
+    <div class="thumbs" id="thumbs"></div>
+    <p class="tiny" style="margin-top:12px">Photos are optional, but they help us get it right first time.</p>
+  </section>
+
+  <!-- STEP 5: review -->
+  <section class="card step review" data-step="5" data-name="Review" hidden>
+    <h1>Almost <em>there</em></h1>
+    <p class="lede">Check everything looks right, then send it through.</p>
+    <dl id="summary"></dl>
+    <p class="note">This is a design request, not an order. Nothing is charged now. We'll come back to you to confirm the design, sizes and price before your set is made.</p>
+  </section>
+
+  <!-- sending -->
+  <section class="card" id="sending" hidden>
+    <div class="sending"><div class="spinner"></div><p id="sendingMsg">Sending your request…</p></div>
+  </section>
+
+  <!-- done -->
+  <section class="card done" id="done" hidden>
+    <h1>Request <em>received</em></h1>
+    <p class="lede" id="doneLede">Thank you. Your design request is with us.</p>
+    <div class="ref" id="refPill"></div>
+    <div class="timeline" id="timeline"></div>
+    <p class="tiny" id="emailNote" style="margin-top:8px"></p>
+    <p class="err" id="photoWarn"></p>
+  </section>
+
+  <p class="err" id="err" role="alert"></p>
+</div>
+
+<nav class="nav" id="nav">
+  <div class="in">
+    <button type="button" class="btn quiet" id="back">Back</button>
+    <button type="button" class="btn primary" id="next">Continue</button>
+  </div>
+</nav>
+
+<script>
+  /* Filled in by Apps Script when served from Google. The hosted copy sets API_URL instead and loads these itself. */
+  var CATALOG = null;
+  var BUSINESS = null;
+  var API_URL = 'https://script.google.com/macros/s/AKfycbyxXs0Zd2g7cxns-U2atybw1pYJX1nV7opqj1asIwjXENToC6bGlCBNInKwQ9ObcU-G/exec';
+</script>
+<script>
+(function () {
+  var FINGERS = ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky'];
+  var KEYS = ['LeftThumb','LeftIndex','LeftMiddle','LeftRing','LeftPinky','RightThumb','RightIndex','RightMiddle','RightRing','RightPinky'];
+  var state = { step: 1, clientType: '', sizeMethod: '', style: '', length: '', styleAuto: false, photos: [] };
+  var $ = function (id) { return document.getElementById(id); };
+  var steps = [].slice.call(document.querySelectorAll('.step'));
+  var NEED = { 'WhatsApp': 'phone', 'Viber': 'phone', 'Instagram': 'instagram', 'Phone call': 'phone', 'Email': 'email' };
+
+  function normKit(v) { var s = String(v || '').trim().toUpperCase(); return /^\d+$/.test(s) ? String(Number(s)) : s; }
+  function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+  function press(sel, el) { [].forEach.call(document.querySelectorAll(sel), function (b) { b.setAttribute('aria-pressed', String(b === el)); }); }
+  function showErr(msg) { $('err').textContent = msg || ''; }
+  function mark(id, bad) { $(id).classList.toggle('invalid', !!bad); return !bad; }
+
+  /* ---------- server calls: google.script.run on Google, fetch when hosted elsewhere ---------- */
+  function run(fn) {
+    var args = [].slice.call(arguments, 1);
+    if (window.google && google.script && google.script.run) {
+      return new Promise(function (resolve, reject) {
+        var r = google.script.run.withSuccessHandler(resolve).withFailureHandler(reject);
+        r[fn].apply(r, args);
+      });
+    }
+    return fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: fn, args: args }) })
+      .then(function (r) { if (!r.ok) throw new Error('Network error'); return r.json(); });
+  }
+
+  function start() {
+    if (CATALOG && BUSINESS) return init();
+    steps.forEach(function (s) { s.hidden = true; });
+    $('progressWrap').hidden = true; $('nav').hidden = true; $('loading').hidden = false;
+    var tries = 0;
+    (function load() {
+      fetch(API_URL + '?api=config').then(function (r) { return r.json(); }).then(function (d) {
+        if (!d || !d.ok) throw new Error('bad');
+        CATALOG = d.catalog; BUSINESS = d.business;
+        $('loading').hidden = true; $('progressWrap').hidden = false; $('nav').hidden = false;
+        init();
+      }).catch(function () {
+        if (++tries < 3) return setTimeout(load, 1500);
+        $('loadingMsg').textContent = "We couldn't load the form. Check your connection and refresh the page.";
+      });
+    })();
+  }
+
+  function init() {
+    if (BUSINESS.logo) {
+      $('logo').src = BUSINESS.logo;
+      $('logo').onload = function () { $('logo').hidden = false; $('bizname').hidden = true; };
+    }
+    $('bizname').textContent = BUSINESS.name;
+    $('logo').alt = BUSINESS.name;
+    [].forEach.call(document.querySelectorAll('.bn'), function (el) { el.textContent = BUSINESS.name; });
+    $('maxPhotos').textContent = BUSINESS.maxPhotos;
+    $('neededBy').min = new Date().toISOString().slice(0, 10);
+    setupStep1(); setupStep2(); setupStep3(); setupStep4(); setupVideos();
+    go(1);
+  }
+
+  /* ---------- step 1 ---------- */
+  function setupStep1() {
+    [].forEach.call(document.querySelectorAll('[data-client]'), function (b) {
+      b.addEventListener('click', function () {
+        state.clientType = b.dataset.client;
+        press('[data-client]', b);
+        $('returnHint').hidden = state.clientType !== 'returning';
+        buildSizeChoices();
+      });
+    });
+    $('contactChips').innerHTML = (BUSINESS.contactMethods || Object.keys(NEED)).map(function (m) {
+      return '<button type="button" class="chip" data-contact="' + esc(m) + '" aria-pressed="false">' + esc(m) + '</button>';
+    }).join('');
+    [].forEach.call(document.querySelectorAll('[data-contact]'), function (b) {
+      b.addEventListener('click', function () { press('[data-contact]', b); state.contact = b.dataset.contact; contactHints(); });
+    });
+    var CODES = [['+679', 'Fiji'], ['+61', 'Australia'], ['+64', 'New Zealand'], ['+685', 'Samoa'], ['+676', 'Tonga'],
+      ['+678', 'Vanuatu'], ['+677', 'Solomon Is'], ['+675', 'PNG'], ['+686', 'Kiribati'], ['+688', 'Tuvalu'], ['+1', 'US/Canada'], ['+44', 'UK']];
+    if (!CODES.some(function (c) { return c[0] === BUSINESS.countryCode; })) CODES.unshift([BUSINESS.countryCode, '']);
+    $('countryCode').innerHTML = CODES.map(function (c) {
+      return '<option value="' + c[0] + '">' + c[0] + (c[1] ? ' ' + c[1] : '') + '</option>';
+    }).join('');
+    $('countryCode').value = BUSINESS.countryCode || '+679';
+  }
+  function contactHints() {
+    var need = NEED[state.contact];
+    $('phoneHint').textContent = need === 'phone' ? '(for ' + state.contact + ')' : '(optional)';
+    $('igHint').textContent = need === 'instagram' ? '' : '(optional)';
+    $('emailHint').textContent = need === 'email' ? '' : '(optional)';
+  }
+
+  /* ---------- step 2 ---------- */
+  function buildSizeChoices() {
+    var opts = [
+      ['kit', 'I have a sizing kit', 'Enter your kit code'],
+      ['measured', 'Tape & ruler', 'Measure at home in mm'],
+      ['requestkit', 'I need a sizing kit', "We'll arrange one for you"],
+    ];
+    if (state.clientType === 'returning') opts.unshift(['onfile', 'Use my sizes on file', 'Same fit as last time']);
+    $('sizeLede').textContent = state.clientType === 'returning'
+      ? 'Welcome back. Shall we use the sizes we already have for you?'
+      : 'Every set is made to your nails, so sizing comes first.';
+    $('sizeChoices').innerHTML = opts.map(function (o) {
+      return '<button type="button" class="choice" data-size="' + o[0] + '" aria-pressed="false"><b>' + o[1] + '</b><span>' + o[2] + '</span></button>';
+    }).join('');
+    setSizeMethod('');
+    [].forEach.call($('sizeChoices').querySelectorAll('.choice'), function (b) {
+      b.addEventListener('click', function () { press('#sizeChoices .choice', b); setSizeMethod(b.dataset.size); });
+    });
+  }
+  function setSizeMethod(m) {
+    state.sizeMethod = m;
+    $('kitPanel').hidden = m !== 'kit';
+    $('mmPanel').hidden = m !== 'measured';
+    $('requestPanel').hidden = m !== 'requestkit';
+    $('onfilePanel').hidden = m !== 'onfile';
+    if (m === 'kit') applyKitStyle(); else clearAutoStyle();
+  }
+
+  function handsHtml(prefix, cell) {
+    return ['Left', 'Right'].map(function (side) {
+      return '<div class="hand"><h3>' + side + ' hand</h3>' + FINGERS.map(function (f) {
+        var id = prefix + side + f;
+        return '<div class="finger"><label for="' + id + '">' + f + '</label>' + cell(id) + '</div>';
+      }).join('') + '</div>';
+    }).join('');
+  }
+
+  function setupStep2() {
+    $('mmHands').innerHTML = handsHtml('mm', function (id) {
+      return '<input type="number" id="' + id + '" inputmode="decimal" step="0.5" min="5" max="25" placeholder="mm">';
+    });
+    $('copyHands').addEventListener('click', function () {
+      FINGERS.forEach(function (f) { $('mmRight' + f).value = $('mmLeft' + f).value; });
+    });
+    $('kitCode').addEventListener('input', renderKit);
+  }
+
+  function renderKit() {
+    var kit = CATALOG.kits[normKit($('kitCode').value)];
+    var raw = $('kitCode').value.trim();
+    $('kitMsg').className = ''; $('kitMsg').textContent = '';
+    state.kit = null;
+    if (!raw || !kit) {
+      $('kitSizes').hidden = true;
+      if (raw && !kit && raw.length >= 2) { $('kitMsg').className = 'kitbad'; $('kitMsg').textContent = "We don't recognise that code yet. Check the label on your kit."; }
+      clearAutoStyle();
+      return;
+    }
+    $('kitMsg').className = 'kitok'; $('kitMsg').textContent = '✓ ' + kit.label + ' kit';
+    var opts = '<option value="">Size</option>' + kit.sizes.map(function (s) { return '<option>' + esc(s.size) + '</option>'; }).join('');
+    var prev = {};
+    KEYS.forEach(function (k) { var el = $('kit' + k); if (el) prev[k] = el.value; });
+    $('kitHands').innerHTML = handsHtml('kit', function (id) { return '<select id="' + id + '">' + opts + '</select>'; });
+    KEYS.forEach(function (k) { if (prev[k]) $('kit' + k).value = prev[k]; });
+    $('kitSizes').hidden = false;
+    state.kit = kit;
+    applyKitStyle();
+  }
+
+  /* ---------- step 3 ---------- */
+  function setupStep3() {
+    var styleNames = Object.keys(CATALOG.styles).sort();
+    $('styleChips').innerHTML = styleNames.map(function (s) {
+      return '<button type="button" class="chip" data-style="' + esc(s) + '" aria-pressed="false">' + esc(s) + '</button>';
+    }).join('') + '<button type="button" class="chip ghost" data-style="Not sure" aria-pressed="false">Help me choose</button>';
+    [].forEach.call(document.querySelectorAll('[data-style]'), function (b) {
+      b.addEventListener('click', function () { state.styleAuto = false; $('autoNote').hidden = true; selectStyle(b.dataset.style); });
+    });
+  }
+  function selectStyle(style, length) {
+    var chip = [].filter.call(document.querySelectorAll('[data-style]'), function (b) { return b.dataset.style === style; })[0];
+    press('[data-style]', chip || null);
+    state.style = chip ? style : ''; state.length = '';
+    if (!chip) { $('lengthWrap').hidden = true; return; }
+    if (style === 'Not sure') { state.length = 'Not sure'; $('lengthWrap').hidden = true; return; }
+    var lens = CATALOG.styles[style] || [];
+    $('lengthChips').innerHTML = lens.map(function (l) {
+      return '<button type="button" class="chip" data-length="' + esc(l) + '" aria-pressed="false">' + esc(l) + '</button>';
+    }).join('') + '<button type="button" class="chip ghost" data-length="Not sure" aria-pressed="false">Not sure</button>';
+    $('lengthWrap').hidden = false;
+    [].forEach.call($('lengthChips').querySelectorAll('[data-length]'), function (lb) {
+      lb.addEventListener('click', function () { state.styleAuto = false; $('autoNote').hidden = true; press('[data-length]', lb); state.length = lb.dataset.length; });
+      if (length && lb.dataset.length === length) { press('[data-length]', lb); state.length = length; }
+    });
+  }
+  /* Pre-select shape and length from the kit, unless the client has already picked their own. */
+  function applyKitStyle() {
+    var kit = state.kit;
+    if (!kit || !kit.style || !CATALOG.styles[kit.style]) return;
+    if (state.style && !state.styleAuto) return;
+    selectStyle(kit.style, kit.length);
+    state.styleAuto = true;
+    $('autoNote').hidden = false;
+  }
+  function clearAutoStyle() {
+    if (!state.styleAuto) return;
+    state.styleAuto = false; $('autoNote').hidden = true;
+    selectStyle('');
+  }
+
+  /* ---------- tutorial videos (only shown when a link is set in Settings) ---------- */
+  function setupVideos() {
+    var v = BUSINESS.videos || {};
+    var labels = { kit: ['Watch: how to use your sizing kit', '1 min video · tap to play'], measured: ['Watch: measuring with tape & ruler', '1 min video · tap to play'] };
+    [].forEach.call(document.querySelectorAll('[data-video]'), function (slot) {
+      var key = slot.dataset.video, url = v[key];
+      var isFile = /^https:\/\/[^\s"'<>]+\.(mp4|webm|mov)(\?|$)/i.test(url || '');
+      if (!url || !(isFile || /^https:\/\/(www\.youtube-nocookie\.com\/embed\/|drive\.google\.com\/file\/d\/)/.test(url))) return;
+      slot.innerHTML = '<button type="button" class="vidbtn" aria-expanded="false"><span class="play"></span><span>' + labels[key][0] + '<small>' + labels[key][1] + '</small></span></button>';
+      var btn = slot.querySelector('button');
+      btn.addEventListener('click', function () {
+        var open = slot.querySelector('.video');
+        if (open) { open.remove(); btn.setAttribute('aria-expanded', 'false'); return; }
+        var box = document.createElement('div');
+        if (isFile) {
+          box.className = 'video tall';
+          box.innerHTML = '<video controls playsinline autoplay preload="metadata" poster="' + esc(url.replace(/\.(mp4|webm|mov)(\?.*)?$/i, '.jpg')) + '" src="' + esc(url) + '"></video>';
+        } else {
+          box.className = 'video' + (/youtube/.test(url) ? '' : ' tall');
+          box.innerHTML = '<iframe src="' + esc(url) + (/youtube/.test(url) ? '&autoplay=1' : '') + '" title="' + esc(labels[key][0]) + '" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>';
+        }
+        slot.appendChild(box); btn.setAttribute('aria-expanded', 'true');
+      });
+    });
+  }
+
+  /* ---------- step 4 ---------- */
+  function setupStep4() {
+    var drop = $('drop');
+    $('files').addEventListener('change', function (e) { addFiles(e.target.files); e.target.value = ''; });
+    ['dragenter', 'dragover'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add('over'); }); });
+    ['dragleave', 'drop'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove('over'); }); });
+    drop.addEventListener('drop', function (e) { addFiles(e.dataTransfer.files); });
+  }
+  function addFiles(list) {
+    var room = BUSINESS.maxPhotos - state.photos.length;
+    var files = [].slice.call(list || []).filter(function (f) { return /^image\//.test(f.type) || /\.(heic|heif)$/i.test(f.name); });
+    if (files.length > room) showErr('You can add up to ' + BUSINESS.maxPhotos + ' photos.');
+    files.slice(0, Math.max(0, room)).forEach(function (f) { state.photos.push({ file: f, url: URL.createObjectURL(f) }); });
+    renderThumbs();
+  }
+  function renderThumbs() {
+    $('thumbs').innerHTML = state.photos.map(function (p, i) {
+      return '<div class="thumb"><img alt="" src="' + p.url + '"><button type="button" aria-label="Remove photo" data-rm="' + i + '">×</button></div>';
+    }).join('');
+    [].forEach.call($('thumbs').querySelectorAll('[data-rm]'), function (b) {
+      b.addEventListener('click', function () { state.photos.splice(Number(b.dataset.rm), 1); renderThumbs(); });
+    });
+    if (state.step === 4) $('next').textContent = state.photos.length ? 'Continue' : 'Skip for now';
+  }
+
+  /* ---------- navigation ---------- */
+  function validStep(n) {
+    showErr('');
+    if (n === 1) {
+      if (!state.clientType) return showErr('Let us know if you’re new or returning.'), false;
+      if (!mark('name', !$('name').value.trim())) return showErr('Please add your name.'), false;
+      if (!state.contact) return showErr('Choose the best way to reach you.'), false;
+      var need = NEED[state.contact];
+      var phoneDigits = $('phone').value.replace(/[^\d]/g, '');
+      var em = $('email').value.trim(), ig = $('instagram').value.trim().replace(/^@+/, '');
+      if (!mark('phone', (need === 'phone' && phoneDigits.length < 7) || (phoneDigits && phoneDigits.length < 7))) return showErr('Please add your mobile number so we can reach you on ' + (need === 'phone' ? state.contact : 'it') + '.'), false;
+      if (!mark('instagram', (need === 'instagram' && !ig) || (ig && !/^[A-Za-z0-9._]{1,30}$/.test(ig.replace(/^.*instagram\.com\//i, '').replace(/[/?].*$/, ''))))) return showErr('Please check your Instagram handle.'), false;
+      if (!mark('email', (need === 'email' && !em) || (em && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)))) return showErr('Please check your email address.'), false;
+      if (!$('consentStore').checked) return showErr('Please tick the box so we can keep your sizes on file.'), false;
+    }
+    if (n === 2) {
+      if (!state.sizeMethod) return showErr('Choose how you’d like to give your sizes.'), false;
+      if (state.sizeMethod === 'kit') {
+        if (!CATALOG.kits[normKit($('kitCode').value)]) return showErr('Enter the code from your sizing kit.'), false;
+        var missing = KEYS.filter(function (k) { return !$('kit' + k).value; });
+        KEYS.forEach(function (k) { mark('kit' + k, !$('kit' + k).value); });
+        if (missing.length) return showErr('Choose a size for every nail.'), false;
+      }
+      if (state.sizeMethod === 'measured') {
+        var bad = KEYS.filter(function (k) { var v = parseFloat($('mm' + k).value); return !(v >= 5 && v <= 25); });
+        KEYS.forEach(function (k) { mark('mm' + k, bad.indexOf(k) >= 0); });
+        if (bad.length) return showErr('Enter each width in millimetres, between 5 and 25.'), false;
+      }
+    }
+    if (n === 3) {
+      if (!state.style) return showErr('Choose a shape, or "Help me choose".'), false;
+      if (!state.length) return showErr('Choose a length, or "Not sure".'), false;
+    }
+    return true;
+  }
+
+  function go(n) {
+    state.step = n;
+    steps.forEach(function (s) { s.hidden = Number(s.dataset.step) !== n; });
+    [].forEach.call($('progress').children, function (b, i) { b.classList.toggle('on', i < n); });
+    var cur = steps[n - 1];
+    $('stepName').innerHTML = '<b>' + cur.dataset.name + '</b>';
+    $('stepCount').textContent = 'Step ' + n + ' of ' + steps.length;
+    $('back').style.visibility = n === 1 ? 'hidden' : 'visible';
+    $('next').textContent = n === steps.length ? 'Send my request' : (n === 4 && !state.photos.length ? 'Skip for now' : 'Continue');
+    if (n === 5) renderSummary();
+    showErr('');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  $('next').addEventListener('click', function () {
+    if (!validStep(state.step)) return;
+    if (state.step < steps.length) go(state.step + 1); else send();
+  });
+  $('back').addEventListener('click', function () { if (state.step > 1) go(state.step - 1); });
+
+  function sizesText() {
+    if (state.sizeMethod === 'onfile') return 'Sizes on file';
+    if (state.sizeMethod === 'requestkit') return 'Sizing kit requested' + ($('kitWhere').value.trim() ? '<br><span class="tiny">' + esc($('kitWhere').value.trim()) + '</span>' : '');
+    var src = state.sizeMethod === 'kit' ? 'kit' : 'mm';
+    var unit = state.sizeMethod === 'kit' ? '' : 'mm';
+    var row = function (side) { return side + ': ' + FINGERS.map(function (f) { return $(src + side + f).value + unit; }).join(' · '); };
+    var head = state.sizeMethod === 'kit' ? esc(state.kit.label) + ' kit<br>' : 'Measured widths<br>';
+    return head + esc(row('Left')) + '<br>' + esc(row('Right'));
+  }
+  function fullPhone() {
+    var raw = $('phone').value.trim();
+    if (!raw) return '';
+    return /^(\+|00)/.test(raw) ? raw : $('countryCode').value + ' ' + raw.replace(/^0+/, '');
+  }
+  function contactLines() {
+    var ig = $('instagram').value.trim().replace(/^@+/, '');
+    return ['Prefers ' + state.contact, fullPhone() ? 'Mobile ' + fullPhone() : '', ig ? 'Instagram @' + ig : '', $('email').value.trim()].filter(Boolean);
+  }
+  function reachText() {
+    var ig = $('instagram').value.trim().replace(/^@+/, '');
+    switch (NEED[state.contact]) {
+      case 'phone': return state.contact === 'Phone call' ? 'call you on ' + fullPhone() : 'message you on ' + state.contact + ' at ' + fullPhone();
+      case 'instagram': return 'message you on Instagram at @' + ig;
+      default: return 'email you at ' + $('email').value.trim();
+    }
+  }
+  function renderSummary() {
+    var look = state.style === 'Not sure' ? 'Help me choose' : state.style + (state.length && state.length !== 'Not sure' ? ' · ' + state.length : ' · length to decide');
+    var rows = [
+      ['Name', esc($('name').value)],
+      ['Contact', contactLines().map(esc).join('<br>')],
+      ['Sizes', sizesText()],
+      ['Shape', esc(look)],
+      ['Needed by', $('neededBy').value ? esc(new Date($('neededBy').value + 'T00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })) : 'No rush'],
+      ['Notes', esc($('comments').value) || '<span class="tiny">None</span>'],
+      ['Photos', state.photos.length ? state.photos.length + ' added' : 'None'],
+    ];
+    $('summary').innerHTML = rows.map(function (r) { return '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>'; }).join('');
+  }
+
+  /* ---------- send ---------- */
+  function shrink(file) {
+    return new Promise(function (resolve) {
+      var img = new Image();
+      img.onload = function () {
+        var max = 1600, w = img.naturalWidth, h = img.naturalHeight, k = Math.min(1, max / Math.max(w, h));
+        var c = document.createElement('canvas'); c.width = Math.round(w * k); c.height = Math.round(h * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        resolve({ mime: 'image/jpeg', data: c.toDataURL('image/jpeg', 0.85).split(',')[1] });
+      };
+      img.onerror = function () {   // browser can't decode (e.g. some HEIC): send the original
+        var fr = new FileReader();
+        fr.onload = function () { resolve({ mime: file.type || 'image/heic', data: String(fr.result).split(',')[1] }); };
+        fr.readAsDataURL(file);
+      };
+      img.src = URL.createObjectURL(file);
+    });
+  }
+
+  function payload() {
+    var p = {
+      clientType: state.clientType,
+      name: $('name').value, email: $('email').value, phone: $('phone').value, countryCode: $('countryCode').value,
+      instagram: $('instagram').value, preferredContact: state.contact,
+      website: $('website').value,
+      consentStore: $('consentStore').checked, consentMarketing: $('consentMarketing').checked,
+      style: state.style, length: state.length, comments: $('comments').value, neededBy: $('neededBy').value,
+      sizing: { method: state.sizeMethod },
+    };
+    if (state.sizeMethod === 'kit') {
+      p.sizing.kitCode = $('kitCode').value; p.sizing.sizes = {};
+      KEYS.forEach(function (k) { p.sizing.sizes[k] = $('kit' + k).value; });
+    }
+    if (state.sizeMethod === 'measured') {
+      p.sizing.widths = {};
+      KEYS.forEach(function (k) { p.sizing.widths[k] = $('mm' + k).value; });
+    }
+    if (state.sizeMethod === 'requestkit') p.sizing.where = $('kitWhere').value;
+    return p;
+  }
+
+  function renderTimeline() {
+    var kit = state.sizeMethod === 'requestkit';
+    var items = [
+      ['Request received', 'Your details' + (kit ? '' : ', sizes') + ' and inspiration are saved.'],
+      kit ? ['We send your sizing kit', 'Try it on, then send us your kit code and sizes.'] : ['We review your design', 'We look over your photos and notes.'],
+      ['We confirm with you', 'Design, fit and price, the way you asked us to reach you.'],
+      ['Handmade for you', 'Once you’re happy, we start painting.'],
+    ];
+    $('timeline').innerHTML = items.map(function (it, i) {
+      return '<div class="tl' + (i ? '' : ' now') + '"><div class="dot">' + (i ? i + 1 : '✓') + '</div><div><b>' + it[0] + '</b><span>' + it[1] + '</span></div></div>';
+    }).join('');
+  }
+
+  function send() {
+    $('next').disabled = true; $('back').disabled = true;
+    steps.forEach(function (s) { s.hidden = true; });
+    $('sending').hidden = false; $('nav').hidden = true; $('progressWrap').hidden = true; showErr('');
+
+    var res, failed = 0;
+    run('submitRequest', payload()).then(function (r) {
+      if (!r || !r.ok) throw new Error((r && r.error) || 'Something went wrong.');
+      res = r;
+      var chain = Promise.resolve();
+      state.photos.forEach(function (p, i) {
+        chain = chain.then(function () {
+          $('sendingMsg').textContent = 'Uploading inspiration photo ' + (i + 1) + ' of ' + state.photos.length + '…';
+          return shrink(p.file).then(function (img) {
+            return run('uploadPhoto', res.requestId, res.token, p.file.name, img.mime, img.data);
+          }).then(function (u) { if (!u || !u.ok) failed++; }, function () { failed++; });
+        });
+      });
+      return chain;
+    }).then(function () {
+      $('sendingMsg').textContent = 'Finishing up…';
+      return run('finishRequest', res.requestId, res.token).catch(function () {});
+    }).then(function () {
+      $('sending').hidden = true; $('done').hidden = false;
+      renderTimeline();
+      $('refPill').textContent = 'REF ' + res.ref;
+      $('doneLede').textContent = 'Thank you, ' + $('name').value.trim().split(' ')[0] + '. Your design request is with us.';
+      $('emailNote').textContent = "We'll " + reachText() + '. '
+        + ($('email').value.trim() ? 'A copy is on its way to ' + $('email').value.trim() + '.' : 'Take a screenshot of this page to keep your reference handy.');
+      if (failed) $('photoWarn').textContent = failed + ' photo' + (failed > 1 ? 's' : '') + " didn't upload. Your request is saved, so just send them to us with your reference.";
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }).catch(function (e) {
+      $('sending').hidden = true; $('nav').hidden = false; $('progressWrap').hidden = false;
+      $('next').disabled = false; $('back').disabled = false;
+      go(5);
+      showErr((e && e.message && e.message !== 'Failed to fetch' ? e.message : '') || 'Something went wrong. Check your connection and try again.');
+    });
+  }
+
+  function clearErr(e) {
+    if (e && e.target && e.target.classList) e.target.classList.remove('invalid');
+    if (state.step && !$('err').textContent) return;
+    showErr('');
+  }
+  document.addEventListener('input', clearErr, true);
+  document.addEventListener('change', clearErr, true);
+  [].forEach.call(document.querySelectorAll('.step'), function (st) { st.addEventListener('click', function (e) { if (e.target.closest('button')) showErr(''); }); });
+
+  start();
+})();
+</script>
+</body>
+</html>
