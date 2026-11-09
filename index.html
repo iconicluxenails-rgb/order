@@ -94,6 +94,11 @@
   .kitok { margin-top: 10px; font-size: 14px; color: var(--text); }
   .kitok::first-letter { color: var(--pink-text); }
   .kitbad { margin-top: 10px; font-size: 14px; color: var(--err); }
+  .discount { margin-top: 18px; }
+  .coderow { display: flex; gap: 8px; }
+  .coderow input { flex: 1; min-width: 0; text-transform: uppercase; }
+  .coderow .btn { flex: none; padding: 0 20px; }
+  .codemsg:empty { display: none; }
   .tip { background: var(--tint); border-left: 2px solid var(--pink); border-radius: 0 12px 12px 0; padding: 14px; font-size: 14px; color: var(--text-2); margin-top: 14px; }
   .tip b { color: var(--text); }
   .panel { margin-top: 18px; }
@@ -298,6 +303,14 @@
     <h1>Almost <em>there</em></h1>
     <p class="lede">Check everything looks right, then send it through.</p>
     <dl id="summary"></dl>
+    <div class="discount">
+      <label class="f" for="discountCode">Discount code <small>(optional)</small></label>
+      <div class="coderow">
+        <input type="text" id="discountCode" maxlength="30" autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="e.g. SPRING10">
+        <button type="button" class="btn quiet" id="applyCode">Apply</button>
+      </div>
+      <p class="codemsg" id="codeMsg" aria-live="polite"></p>
+    </div>
     <p class="note">This is a design request, not an order. Nothing is charged now. We'll come back to you to confirm the design, sizes and price before your set is made.</p>
   </section>
 
@@ -388,7 +401,7 @@
     [].forEach.call(document.querySelectorAll('.bn'), function (el) { el.textContent = BUSINESS.name; });
     $('maxPhotos').textContent = BUSINESS.maxPhotos;
     $('neededBy').min = new Date().toISOString().slice(0, 10);
-    setupStep1(); setupStep2(); setupStep3(); setupStep4(); setupVideos(); setupGuide();
+    setupStep1(); setupStep2(); setupStep3(); setupStep4(); setupVideos(); setupGuide(); setupDiscount();
     go(1);
   }
 
@@ -533,6 +546,38 @@
     selectStyle('');
   }
 
+  /* ---------- discount code (checked on the server; staff apply it to the final price) ---------- */
+  function normCode(v) { return String(v || '').toUpperCase().replace(/[^A-Z0-9_-]/g, '').slice(0, 30); }
+  function setupDiscount() {
+    var inp = $('discountCode'), msg = $('codeMsg');
+    var fromLink = normCode(new URLSearchParams(location.search).get('code'));
+    if (fromLink) inp.value = fromLink;
+    inp.addEventListener('input', function () { msg.textContent = ''; msg.className = 'codemsg'; state.codeChecked = ''; });
+    inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); checkDiscount(); } });
+    $('applyCode').addEventListener('click', checkDiscount);
+  }
+  function checkDiscount() {
+    var code = normCode($('discountCode').value), msg = $('codeMsg');
+    $('discountCode').value = code;
+    if (!code) { msg.className = 'codemsg kitbad'; msg.textContent = 'Type your code first.'; return; }
+    if (state.codeChecked === code) return;
+    msg.className = 'codemsg kitok'; msg.textContent = 'Checking…';
+    run('checkCode', code).then(function (r) {
+      if (normCode($('discountCode').value) !== code) return;
+      if (r && r.ok) {
+        state.codeChecked = code;
+        msg.className = 'codemsg kitok';
+        msg.textContent = '✓ ' + r.code + ' · ' + r.label + '. We\'ll take it off your price when we confirm your order.';
+      } else {
+        msg.className = 'codemsg kitbad';
+        msg.textContent = (r && r.error) || "Sorry, we don't recognise that code.";
+      }
+    }).catch(function () {
+      msg.className = 'codemsg kitbad';
+      msg.textContent = "We couldn't check that code just now. You can still send your request and we'll look at it.";
+    });
+  }
+
   /* ---------- photo guide of all shapes and lengths ---------- */
   function setupGuide() {
     var btn = $('guideBtn'), box = $('guideBox');
@@ -638,7 +683,7 @@
     $('stepCount').textContent = 'Step ' + n + ' of ' + steps.length;
     $('back').style.visibility = n === 1 ? 'hidden' : 'visible';
     $('next').textContent = n === steps.length ? 'Send my request' : (n === 4 && !state.photos.length ? 'Skip for now' : 'Continue');
-    if (n === 5) renderSummary();
+    if (n === 5) { renderSummary(); if (normCode($('discountCode').value) && !state.codeChecked) checkDiscount(); }
     showErr('');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -715,6 +760,7 @@
       website: $('website').value,
       consentStore: $('consentStore').checked, consentMarketing: $('consentMarketing').checked,
       style: state.style, length: state.length, comments: $('comments').value, neededBy: $('neededBy').value,
+      discountCode: normCode($('discountCode').value),
       sizing: { method: state.sizeMethod },
     };
     if (state.sizeMethod === 'kit') {
