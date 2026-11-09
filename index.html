@@ -108,6 +108,13 @@
   .video.tall { aspect-ratio: 9 / 16; max-height: 70vh; margin-left: auto; margin-right: auto; }
   .video iframe, .video video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; object-fit: contain; background: #000; }
   .video.tall { max-width: 360px; }
+  .vidbtn .pic { flex: none; width: 34px; height: 34px; border-radius: 50%; background: var(--pink-fill); display: grid; place-items: center; }
+  .vidbtn .pic::before { content: ''; width: 14px; height: 11px; border: 2px solid #fff; border-radius: 2px; }
+  .guide { margin-top: 12px; display: grid; gap: 12px; }
+  .guide a { display: block; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); background: #000; }
+  .guide img { display: block; width: 100%; height: auto; }
+  .guide .tiny { text-align: center; }
+  .price { color: var(--pink-text); font-weight: 600; }
 
   /* photos */
   .drop { display: block; border: 1.5px dashed var(--line-2); border-radius: 12px; padding: 26px 16px; text-align: center; cursor: pointer; transition: border-color .2s, background .2s; background: var(--field); }
@@ -240,9 +247,7 @@
 
     <!-- request a kit -->
     <div id="requestPanel" class="panel" hidden>
-      <div class="tip"><b>No problem, we'll get a sizing kit to you.</b> Finish the rest of the form now. When we message you, we'll arrange your kit. Once you've tried it on, send us your kit code and sizes and we'll confirm your set.</div>
-      <label class="f" for="kitWhere">Where should we send it? <small>(town or area, or "pick up" · optional)</small></label>
-      <input type="text" id="kitWhere" maxlength="120" placeholder="e.g. Tamavua, Suva">
+      <div class="tip"><b>No problem, we'll get a sizing kit to you.</b> A sizing kit is <span class="price">$5</span>. Finish the rest of the form now, and when we message you we'll sort out payment and how you'd like to get your kit. Once you've tried it on, send us your kit code and sizes and we'll confirm your set.</div>
     </div>
 
     <div id="onfilePanel" class="panel" hidden>
@@ -254,6 +259,14 @@
   <section class="card step" data-step="3" data-name="Your style" hidden>
     <h1>Shape &amp; <em>length</em></h1>
     <p class="lede">Choose what you love. Not sure? We'll help you decide.</p>
+    <div id="styleGuide">
+      <button type="button" class="vidbtn" id="guideBtn" aria-expanded="false" aria-controls="guideBox"><span class="pic"></span><span>See all our shapes &amp; lengths<small>Photo guide · tap to view</small></span></button>
+      <div class="guide" id="guideBox" hidden>
+        <a href="https://iconicluxenails-rgb.github.io/order/styles-short-medium-long.jpg" target="_blank" rel="noopener"><img loading="lazy" width="1080" height="1350" src="https://iconicluxenails-rgb.github.io/order/styles-short-medium-long.jpg" alt="Short, medium and long shapes: short round, short square, short coffin, short almond, medium stiletto, medium coffin, medium square, medium lipstick, medium almond, medium ballerina, medium duckies and long square"></a>
+        <a href="https://iconicluxenails-rgb.github.io/order/styles-long-xl.jpg" target="_blank" rel="noopener"><img loading="lazy" width="1080" height="1350" src="https://iconicluxenails-rgb.github.io/order/styles-long-xl.jpg" alt="Long, XL, 2XL and 5XL shapes: long round, long coffin, long almond, XL ballerina, XL almond, 2XL square, 2XL almond, 2XL ballerina, 2XL round, 5XL stiletto, 5XL square and 5XL ballerina"></a>
+        <p class="tiny">Tap a photo to open it full size.</p>
+      </div>
+    </div>
     <h2>Shape</h2>
     <div class="chips" id="styleChips"></div>
     <div id="lengthWrap" hidden>
@@ -375,7 +388,7 @@
     [].forEach.call(document.querySelectorAll('.bn'), function (el) { el.textContent = BUSINESS.name; });
     $('maxPhotos').textContent = BUSINESS.maxPhotos;
     $('neededBy').min = new Date().toISOString().slice(0, 10);
-    setupStep1(); setupStep2(); setupStep3(); setupStep4(); setupVideos();
+    setupStep1(); setupStep2(); setupStep3(); setupStep4(); setupVideos(); setupGuide();
     go(1);
   }
 
@@ -415,7 +428,7 @@
     var opts = [
       ['kit', 'I have a sizing kit', 'Enter your kit code'],
       ['measured', 'Tape & ruler', 'Measure at home in mm'],
-      ['requestkit', 'I need a sizing kit', "We'll arrange one for you"],
+      ['requestkit', 'I need a sizing kit', "$5 · we'll arrange one for you"],
     ];
     if (state.clientType === 'returning') opts.unshift(['onfile', 'Use my sizes on file', 'Same fit as last time']);
     $('sizeLede').textContent = state.clientType === 'returning'
@@ -518,6 +531,15 @@
     if (!state.styleAuto) return;
     state.styleAuto = false; $('autoNote').hidden = true;
     selectStyle('');
+  }
+
+  /* ---------- photo guide of all shapes and lengths ---------- */
+  function setupGuide() {
+    var btn = $('guideBtn'), box = $('guideBox');
+    btn.addEventListener('click', function () {
+      box.hidden = !box.hidden;
+      btn.setAttribute('aria-expanded', String(!box.hidden));
+    });
   }
 
   /* ---------- tutorial videos (only shown when a link is set in Settings) ---------- */
@@ -628,7 +650,7 @@
 
   function sizesText() {
     if (state.sizeMethod === 'onfile') return 'Sizes on file';
-    if (state.sizeMethod === 'requestkit') return 'Sizing kit requested' + ($('kitWhere').value.trim() ? '<br><span class="tiny">' + esc($('kitWhere').value.trim()) + '</span>' : '');
+    if (state.sizeMethod === 'requestkit') return 'Sizing kit requested <span class="tiny">($5)</span>';
     var src = state.sizeMethod === 'kit' ? 'kit' : 'mm';
     var unit = state.sizeMethod === 'kit' ? '' : 'mm';
     var row = function (side) { return side + ': ' + FINGERS.map(function (f) { return $(src + side + f).value + unit; }).join(' · '); };
@@ -703,7 +725,6 @@
       p.sizing.widths = {};
       KEYS.forEach(function (k) { p.sizing.widths[k] = $('mm' + k).value; });
     }
-    if (state.sizeMethod === 'requestkit') p.sizing.where = $('kitWhere').value;
     return p;
   }
 
