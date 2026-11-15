@@ -201,12 +201,17 @@
       <button type="button" class="choice" data-client="returning" aria-pressed="false"><b>I've ordered before</b><span>Welcome back</span></button>
     </div>
 
-    <label class="f" for="name">Your name</label>
-    <input type="text" id="name" autocomplete="name">
+    <div data-only="new">
+      <label class="f" for="name">Your name</label>
+      <input type="text" id="name" autocomplete="name">
 
-    <h2>Best way to reach you</h2>
-    <div class="chips" id="contactChips"></div>
-    <p class="tiny" id="returnHint" style="margin-top:8px" hidden>Use the same number, Instagram or email as last time so we can find your sizes.</p>
+      <h2>Best way to reach you</h2>
+      <div class="chips" id="contactChips"></div>
+    </div>
+    <div data-only="returning" hidden>
+      <h2>Find your details</h2>
+      <p class="tiny" id="returnHint" style="margin-top:6px">Enter the mobile number, Instagram or email you used last time. Just one is fine, and we'll use the details and sizes we already have for you.</p>
+    </div>
 
     <label class="f" for="phone">Mobile number <small id="phoneHint">(optional)</small></label>
     <div class="phone">
@@ -219,7 +224,7 @@
     <input type="email" id="email" autocomplete="email" inputmode="email">
     <div class="hp" aria-hidden="true"><label>Website <input type="text" id="website" tabindex="-1" autocomplete="off"></label></div>
 
-    <label class="check"><input type="checkbox" id="consentStore"><span>I'm happy for <span class="bn">Iconic Luxe Nails</span> to keep my contact details and nail sizes on file for my orders.</span></label>
+    <label class="check" data-only="new"><input type="checkbox" id="consentStore"><span>I'm happy for <span class="bn">Iconic Luxe Nails</span> to keep my contact details and nail sizes on file for my orders.</span></label>
     <label class="check"><input type="checkbox" id="consentMarketing"><span>Send me new drops and offers now and then. <small class="tiny">(optional, unsubscribe any time)</small></span></label>
   </section>
 
@@ -411,7 +416,9 @@
       b.addEventListener('click', function () {
         state.clientType = b.dataset.client;
         press('[data-client]', b);
-        $('returnHint').hidden = state.clientType !== 'returning';
+        [].forEach.call(document.querySelectorAll('[data-only]'), function (el) { el.hidden = el.dataset.only !== state.clientType; });
+        showErr('');
+        contactHints();
         buildSizeChoices();
       });
     });
@@ -430,6 +437,10 @@
     $('countryCode').value = BUSINESS.countryCode || '+679';
   }
   function contactHints() {
+    if (state.clientType === 'returning') {
+      $('phoneHint').textContent = $('igHint').textContent = $('emailHint').textContent = '(if you used it)';
+      return;
+    }
     var need = NEED[state.contact];
     $('phoneHint').textContent = need === 'phone' ? '(for ' + state.contact + ')' : '(optional)';
     $('igHint').textContent = need === 'instagram' ? '' : '(optional)';
@@ -643,6 +654,15 @@
     showErr('');
     if (n === 1) {
       if (!state.clientType) return showErr('Let us know if you’re new or returning.'), false;
+      if (state.clientType === 'returning') {
+        var pd = $('phone').value.replace(/[^\d]/g, ''), e2 = $('email').value.trim(), i2 = $('instagram').value.trim().replace(/^@+/, '');
+        if (!pd && !e2 && !i2) { mark('phone', true); return showErr('Enter the mobile number, Instagram or email you used last time.'), false; }
+        mark('phone', false);
+        if (!mark('phone', pd && pd.length < 7)) return showErr('Please check your mobile number.'), false;
+        if (!mark('instagram', i2 && !/^[A-Za-z0-9._]{1,30}$/.test(i2.replace(/^.*instagram\.com\//i, '').replace(/[/?].*$/, '')))) return showErr('Please check your Instagram handle.'), false;
+        if (!mark('email', e2 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e2))) return showErr('Please check your email address.'), false;
+        return true;
+      }
       if (!mark('name', !$('name').value.trim())) return showErr('Please add your name.'), false;
       if (!state.contact) return showErr('Choose the best way to reach you.'), false;
       var need = NEED[state.contact];
@@ -709,9 +729,10 @@
   }
   function contactLines() {
     var ig = $('instagram').value.trim().replace(/^@+/, '');
-    return ['Prefers ' + state.contact, fullPhone() ? 'Mobile ' + fullPhone() : '', ig ? 'Instagram @' + ig : '', $('email').value.trim()].filter(Boolean);
+    return [state.clientType === 'returning' ? '' : 'Prefers ' + state.contact, fullPhone() ? 'Mobile ' + fullPhone() : '', ig ? 'Instagram @' + ig : '', $('email').value.trim()].filter(Boolean);
   }
   function reachText() {
+    if (state.clientType === 'returning') return 'be in touch using the details we have for you';
     var ig = $('instagram').value.trim().replace(/^@+/, '');
     switch (NEED[state.contact]) {
       case 'phone': return state.contact === 'Phone call' ? 'call you on ' + fullPhone() : 'message you on ' + state.contact + ' at ' + fullPhone();
@@ -722,7 +743,7 @@
   function renderSummary() {
     var look = state.style === 'Not sure' ? 'Help me choose' : state.style + (state.length && state.length !== 'Not sure' ? ' · ' + state.length : ' · length to decide');
     var rows = [
-      ['Name', esc($('name').value)],
+      ['Name', state.clientType === 'returning' ? 'Returning client' : esc($('name').value)],
       ['Contact', contactLines().map(esc).join('<br>')],
       ['Sizes', sizesText()],
       ['Shape', esc(look)],
@@ -755,10 +776,11 @@
   function payload() {
     var p = {
       clientType: state.clientType,
-      name: $('name').value, email: $('email').value, phone: $('phone').value, countryCode: $('countryCode').value,
-      instagram: $('instagram').value, preferredContact: state.contact,
+      name: state.clientType === 'returning' ? '' : $('name').value, email: $('email').value, phone: $('phone').value, countryCode: $('countryCode').value,
+      instagram: $('instagram').value, preferredContact: state.clientType === 'returning' ? '' : state.contact,
+      consentStore: state.clientType === 'returning' ? false : $('consentStore').checked,
       website: $('website').value,
-      consentStore: $('consentStore').checked, consentMarketing: $('consentMarketing').checked,
+      consentMarketing: $('consentMarketing').checked,
       style: state.style, length: state.length, comments: $('comments').value, neededBy: $('neededBy').value,
       discountCode: normCode($('discountCode').value),
       sizing: { method: state.sizeMethod },
@@ -813,7 +835,8 @@
       $('sending').hidden = true; $('done').hidden = false;
       renderTimeline();
       $('refPill').textContent = 'REF ' + res.ref;
-      $('doneLede').textContent = 'Thank you, ' + $('name').value.trim().split(' ')[0] + '. Your design request is with us.';
+      var first = state.clientType === 'returning' ? '' : $('name').value.trim().split(' ')[0];
+      $('doneLede').textContent = 'Thank you' + (first ? ', ' + first : '') + '. Your design request is with us.';
       $('emailNote').textContent = "We'll " + reachText() + '. '
         + ($('email').value.trim() ? 'A copy is on its way to ' + $('email').value.trim() + '.' : 'Take a screenshot of this page to keep your reference handy.');
       if (failed) $('photoWarn').textContent = failed + ' photo' + (failed > 1 ? 's' : '') + " didn't upload. Your request is saved, so just send them to us with your reference.";
