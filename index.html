@@ -97,6 +97,9 @@
   .onfile { margin: 12px 0 8px; display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 15px; }
   .onfile dt { color: var(--muted); }
   .onfile dd { margin: 0; }
+  .welcome { margin: 0 0 18px; padding: 14px 16px; border: 1px solid var(--line-2); border-radius: 14px; }
+  .welcome p { margin: 0; font-size: 18px; }
+  .welcome .linkbtn { margin-top: 6px; }
   .discount { margin-top: 18px; }
   .coderow { display: flex; gap: 8px; }
   .coderow input { flex: 1; min-width: 0; text-transform: uppercase; }
@@ -233,6 +236,10 @@
 
   <!-- STEP 2: sizes -->
   <section class="card step" data-step="2" data-name="Your fit" hidden>
+    <div class="welcome" id="welcomeBack" hidden>
+      <p>Welcome back, <b id="welcomeName"></b></p>
+      <button type="button" class="linkbtn" id="notYou">Not you?</button>
+    </div>
     <h1>Your <em>perfect fit</em></h1>
     <p class="lede" id="sizeLede">Every set is made to your nails, so sizing comes first.</p>
 
@@ -460,9 +467,7 @@
       ['requestkit', 'I need a sizing kit', "$5 · we'll arrange one for you"],
     ];
     if (state.clientType === 'returning') opts.unshift(['onfile', 'Use my sizes from last time', 'Finding your sizes…']);
-    $('sizeLede').textContent = state.clientType === 'returning'
-      ? 'Welcome back. Shall we use the sizes we already have for you?'
-      : 'Every set is made to your nails, so sizing comes first.';
+    renderWelcome();
     $('sizeChoices').innerHTML = opts.map(function (o) {
       return '<button type="button" class="choice" data-size="' + o[0] + '" aria-pressed="false"><b>' + o[1] + '</b><span>' + o[2] + '</span></button>';
     }).join('');
@@ -478,11 +483,33 @@
   function lookupOnfile() {
     var key = lookupKey();
     if (state.onfileKey === key) return;
-    state.onfileKey = key; state.onfile = 'loading'; renderOnfile();
+    state.onfileKey = key; state.onfile = 'loading'; state.welcomeName = ''; renderWelcome(); renderOnfile();
     run('lookupSizes', { phone: $('phone').value, countryCode: $('countryCode').value, email: $('email').value, instagram: $('instagram').value })
-      .then(function (r) { if (state.onfileKey === key) { state.onfile = r && r.found ? r : null; renderOnfile(); } })
-      .catch(function () { if (state.onfileKey === key) { state.onfile = { found: false, failed: true }; renderOnfile(); } });
+      .then(function (r) {
+        if (state.onfileKey !== key) return;
+        state.welcomeName = r && r.firstName ? r.firstName : '';
+        state.onfile = r && r.found ? r : null;
+        renderWelcome(); renderOnfile();
+      })
+      .catch(function () { if (state.onfileKey === key) { state.welcomeName = ''; state.onfile = { found: false, failed: true }; renderWelcome(); renderOnfile(); } });
   }
+  function renderWelcome() {
+    var name = state.clientType === 'returning' ? state.welcomeName : '';
+    $('welcomeBack').hidden = !name;
+    $('welcomeName').textContent = name;
+    $('sizeLede').textContent = state.clientType !== 'returning' ? 'Every set is made to your nails, so sizing comes first.'
+      : name ? 'Shall we use the sizes we already have for you?' : 'Welcome back. Shall we use the sizes we already have for you?';
+  }
+  // "Not you?": forget the lookup and send them back to enter their own details.
+  $('notYou').addEventListener('click', function () {
+    ['phone', 'email', 'instagram'].forEach(function (id) { $(id).value = ''; });
+    state.onfileKey = ''; state.onfile = null; state.welcomeName = '';
+    renderWelcome();
+    buildSizeChoices();
+    go(1);
+    $('returnHint').textContent = 'No problem. Enter the mobile number, Instagram or email you used when you ordered before.';
+    $('phone').focus();
+  });
   function onfileRows(o) {
     if (!o || !o.found) return [];
     var rows = [['Kit', esc(o.label)]];
@@ -887,7 +914,7 @@
       $('sending').hidden = true; $('done').hidden = false;
       renderTimeline();
       $('refPill').textContent = 'REF ' + res.ref;
-      var first = state.clientType === 'returning' ? '' : $('name').value.trim().split(' ')[0];
+      var first = state.clientType === 'returning' ? (state.welcomeName || '') : $('name').value.trim().split(' ')[0];
       $('doneLede').textContent = 'Thank you' + (first ? ', ' + first : '') + '. Your design request is with us.';
       $('emailNote').textContent = "We'll " + reachText() + '. '
         + ($('email').value.trim() ? 'A copy is on its way to ' + $('email').value.trim() + '.' : 'Take a screenshot of this page to keep your reference handy.');
