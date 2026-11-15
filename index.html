@@ -94,6 +94,9 @@
   .kitok { margin-top: 10px; font-size: 14px; color: var(--text); }
   .kitok::first-letter { color: var(--pink-text); }
   .kitbad { margin-top: 10px; font-size: 14px; color: var(--err); }
+  .onfile { margin: 12px 0 8px; display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 15px; }
+  .onfile dt { color: var(--muted); }
+  .onfile dd { margin: 0; }
   .discount { margin-top: 18px; }
   .coderow { display: flex; gap: 8px; }
   .coderow input { flex: 1; min-width: 0; text-transform: uppercase; }
@@ -261,7 +264,9 @@
     </div>
 
     <div id="onfilePanel" class="panel" hidden>
-      <div class="tip">We'll use the sizes we have on file for you. If your nails have changed, choose another option instead.</div>
+      <div class="tip" id="onfileTip">We'll use the sizes we have on file for you. If your nails have changed, choose another option instead.</div>
+      <dl class="onfile" id="onfileSizes" hidden></dl>
+      <p class="tiny" id="onfileNote" hidden>Ordering a different shape or length? Keep these and we'll convert them to the right kit for you while we chat, or resize with another kit using the option above.</p>
     </div>
   </section>
 
@@ -454,7 +459,7 @@
       ['measured', 'Tape & ruler', 'Measure at home in mm'],
       ['requestkit', 'I need a sizing kit', "$5 · we'll arrange one for you"],
     ];
-    if (state.clientType === 'returning') opts.unshift(['onfile', 'Use my sizes on file', 'Same fit as last time']);
+    if (state.clientType === 'returning') opts.unshift(['onfile', 'Use my sizes from last time', 'Finding your sizes…']);
     $('sizeLede').textContent = state.clientType === 'returning'
       ? 'Welcome back. Shall we use the sizes we already have for you?'
       : 'Every set is made to your nails, so sizing comes first.';
@@ -465,6 +470,49 @@
     [].forEach.call($('sizeChoices').querySelectorAll('.choice'), function (b) {
       b.addEventListener('click', function () { press('#sizeChoices .choice', b); setSizeMethod(b.dataset.size); });
     });
+    renderOnfile();
+  }
+
+  /* ---------- returning clients: kit and sizes from their last order ---------- */
+  function lookupKey() { return [fullPhone().replace(/[^\d]/g, ''), $('email').value.trim().toLowerCase(), $('instagram').value.trim().replace(/^@+/, '').toLowerCase()].join('|'); }
+  function lookupOnfile() {
+    var key = lookupKey();
+    if (state.onfileKey === key) return;
+    state.onfileKey = key; state.onfile = 'loading'; renderOnfile();
+    run('lookupSizes', { phone: $('phone').value, countryCode: $('countryCode').value, email: $('email').value, instagram: $('instagram').value })
+      .then(function (r) { if (state.onfileKey === key) { state.onfile = r && r.found ? r : null; renderOnfile(); } })
+      .catch(function () { if (state.onfileKey === key) { state.onfile = { found: false, failed: true }; renderOnfile(); } });
+  }
+  function onfileRows(o) {
+    if (!o || !o.found) return [];
+    var rows = [['Kit', esc(o.label)]];
+    ['Left', 'Right'].forEach(function (side) {
+      rows.push([side, FINGERS.map(function (f) {
+        var k = side + f;
+        return o.sizes ? esc(o.sizes[k]) : (o.widths[k] ? esc(o.widths[k]) + 'mm' : '–');
+      }).join(' · ')]);
+    });
+    return rows;
+  }
+  function renderOnfile() {
+    var btn = document.querySelector('[data-size=onfile]');
+    if (!btn || state.clientType !== 'returning') return;
+    var o = state.onfile, span = btn.querySelector('span');
+    if (o === 'loading') {
+      btn.hidden = false; span.textContent = 'Finding your sizes…';
+    } else if (o && o.found) {
+      btn.hidden = false; span.textContent = o.label + ' · same fit as last time';
+      $('onfileTip').textContent = "Here are the sizes from your last order. We'll use these unless you choose another option.";
+      $('onfileSizes').innerHTML = onfileRows(o).map(function (r) { return '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>'; }).join('');
+      $('onfileSizes').hidden = false; $('onfileNote').hidden = false;
+      if (!state.sizeMethod) { press('#sizeChoices .choice', btn); setSizeMethod('onfile'); }
+    } else {
+      // Not found (or the lookup failed): still allow "sizes on file" so staff can check, but don't preselect it.
+      btn.hidden = false; span.textContent = o && o.failed ? 'Same fit as last time' : "We'll check your record";
+      $('onfileTip').textContent = o && o.failed ? "We'll use the sizes we have on file for you."
+        : "We couldn't find sizes for those details. We'll check your record when we message you, or choose another option to add sizes now.";
+      $('onfileSizes').hidden = true; $('onfileNote').hidden = true;
+    }
   }
   function setSizeMethod(m) {
     state.sizeMethod = m;
@@ -709,12 +757,16 @@
   }
   $('next').addEventListener('click', function () {
     if (!validStep(state.step)) return;
+    if (state.step === 1 && state.clientType === 'returning') lookupOnfile();
     if (state.step < steps.length) go(state.step + 1); else send();
   });
   $('back').addEventListener('click', function () { if (state.step > 1) go(state.step - 1); });
 
   function sizesText() {
-    if (state.sizeMethod === 'onfile') return 'Sizes on file';
+    if (state.sizeMethod === 'onfile') {
+      var of = state.onfile && state.onfile.found ? state.onfile : null;
+      return of ? 'Same as last time<br>' + onfileRows(of).map(function (r) { return r[0] + ': ' + r[1]; }).join('<br>') : 'Sizes on file';
+    }
     if (state.sizeMethod === 'requestkit') return 'Sizing kit requested <span class="tiny">($5)</span>';
     var src = state.sizeMethod === 'kit' ? 'kit' : 'mm';
     var unit = state.sizeMethod === 'kit' ? '' : 'mm';
