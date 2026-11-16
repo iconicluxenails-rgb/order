@@ -94,12 +94,6 @@
   .kitok { margin-top: 10px; font-size: 14px; color: var(--text); }
   .kitok::first-letter { color: var(--pink-text); }
   .kitbad { margin-top: 10px; font-size: 14px; color: var(--err); }
-  .onfile { margin: 12px 0 8px; display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 15px; }
-  .onfile dt { color: var(--muted); }
-  .onfile dd { margin: 0; }
-  .welcome { margin: 0 0 18px; padding: 14px 16px; border: 1px solid var(--line-2); border-radius: 14px; }
-  .welcome p { margin: 0; font-size: 18px; }
-  .welcome .linkbtn { margin-top: 6px; }
   .discount { margin-top: 18px; }
   .coderow { display: flex; gap: 8px; }
   .coderow input { flex: 1; min-width: 0; text-transform: uppercase; }
@@ -108,6 +102,18 @@
   .tip { background: var(--tint); border-left: 2px solid var(--pink); border-radius: 0 12px 12px 0; padding: 14px; font-size: 14px; color: var(--text-2); margin-top: 14px; }
   .tip b { color: var(--text); }
   .panel { margin-top: 18px; }
+  .secure { margin-top: 8px; font-size: 13px; line-height: 1.5; color: var(--text-2); }
+  .secure b { color: var(--text); }
+  .codebox { margin-top: 18px; padding: 16px; border: 1px solid var(--line-2); border-radius: 14px; }
+  .codebox p { margin: 0 0 4px; font-size: 14px; color: var(--text-2); }
+  .codebox input { font-size: 22px; letter-spacing: 6px; max-width: 220px; }
+  .codebox .linkbtn { margin-right: 18px; }
+  .welcome { margin: 0 0 18px; padding: 14px 16px; border: 1px solid var(--line-2); border-radius: 14px; }
+  .welcome p { margin: 0; font-size: 18px; }
+  .welcome .linkbtn { margin-top: 6px; }
+  .onfile { margin: 12px 0 8px; display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 15px; }
+  .onfile dt { color: var(--muted); }
+  .onfile dd { margin: 0; }
 
   /* tutorial video */
   .vidbtn { display: flex; width: 100%; align-items: center; gap: 12px; margin-top: 14px; padding: 12px 14px; border: 1px solid var(--line-2); border-radius: 12px; background: var(--field); color: var(--text); font: inherit; font-size: 14px; cursor: pointer; text-align: left; }
@@ -216,9 +222,10 @@
     </div>
     <div data-only="returning" hidden>
       <h2>Find your details</h2>
-      <p class="tiny" id="returnHint" style="margin-top:6px">Enter the mobile number, Instagram or email you used last time. Just one is fine, and we'll use the details and sizes we already have for you.</p>
+      <p class="tiny" id="returnHint" style="margin-top:6px">Enter your email. To keep your details safe, we'll email you a one-time code to confirm it's you before we show your saved sizes. If we don't have your email yet, add your mobile or Instagram too so we can match you.</p>
     </div>
 
+    <div id="altBlock">
     <label class="f" for="phone">Mobile number <small id="phoneHint">(optional)</small></label>
     <div class="phone">
       <select id="countryCode" aria-label="Country code"></select>
@@ -226,8 +233,23 @@
     </div>
     <label class="f" for="instagram">Instagram <small id="igHint">(optional)</small></label>
     <input type="text" id="instagram" placeholder="@yourhandle" autocapitalize="off" autocorrect="off">
-    <label class="f" for="email">Email <small id="emailHint">(optional)</small></label>
-    <input type="email" id="email" autocomplete="email" inputmode="email">
+    </div>
+    <div id="emailBlock">
+    <label class="f" for="email">Email <small id="emailHint">(required)</small></label>
+    <input type="email" id="email" autocomplete="email" inputmode="email" required>
+    <p class="secure" id="emailWhy"><b>Why we need your email:</b> it keeps your details secure with two-factor authentication. When you order again, we'll email you a one-time code so only you can see and use your saved details and nail sizes. We'll also send your request confirmation here.</p>
+
+    <div class="codebox" id="codePanel" hidden>
+      <p id="otpMsg">Check your email for a 6-digit code.</p>
+      <label class="f" for="otp">One-time code</label>
+      <input type="text" id="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000">
+      <div>
+        <button type="button" class="linkbtn" id="resendCode">Send a new code</button>
+        <button type="button" class="linkbtn" id="skipCode">Continue without a code</button>
+      </div>
+      <p class="tiny" style="margin-top:10px">Without a code we won't show your saved details here. You can still send your request and we'll confirm your sizes with you.</p>
+    </div>
+    </div>
     <div class="hp" aria-hidden="true"><label>Website <input type="text" id="website" tabindex="-1" autocomplete="off"></label></div>
 
     <label class="check" data-only="new"><input type="checkbox" id="consentStore"><span>I'm happy for <span class="bn">Iconic Luxe Nails</span> to keep my contact details and nail sizes on file for my orders.</span></label>
@@ -271,9 +293,9 @@
     </div>
 
     <div id="onfilePanel" class="panel" hidden>
-      <div class="tip" id="onfileTip">We'll use the sizes we have on file for you. If your nails have changed, choose another option instead.</div>
+      <div class="tip" id="onfileTip">We'll use the sizes from your last order and confirm them with you when we message you. If your nails have changed, choose another option instead.</div>
       <dl class="onfile" id="onfileSizes" hidden></dl>
-      <p class="tiny" id="onfileNote" hidden>Ordering a different shape or length? Keep these and we'll convert them to the right kit for you while we chat, or resize with another kit using the option above.</p>
+      <p class="tiny" id="onfileNote">Ordering a different shape or length? Keep this option and we'll convert your sizes to the right kit while we chat, or resize with another kit using the options above.</p>
     </div>
   </section>
 
@@ -418,7 +440,7 @@
     [].forEach.call(document.querySelectorAll('.bn'), function (el) { el.textContent = BUSINESS.name; });
     $('maxPhotos').textContent = BUSINESS.maxPhotos;
     $('neededBy').min = new Date().toISOString().slice(0, 10);
-    setupStep1(); setupStep2(); setupStep3(); setupStep4(); setupVideos(); setupGuide(); setupDiscount();
+    setupStep1(); setupVerify(); setupStep2(); setupStep3(); setupStep4(); setupVideos(); setupGuide(); setupDiscount();
     go(1);
   }
 
@@ -428,6 +450,10 @@
       b.addEventListener('click', function () {
         state.clientType = b.dataset.client;
         press('[data-client]', b);
+        resetVerify();
+        // Returning clients start with their email (it's what we send the code to); new clients end with it.
+        var eb = $('emailBlock'), ab = $('altBlock');
+        if (state.clientType === 'returning') ab.parentNode.insertBefore(eb, ab); else eb.parentNode.insertBefore(ab, eb);
         [].forEach.call(document.querySelectorAll('[data-only]'), function (el) { el.hidden = el.dataset.only !== state.clientType; });
         showErr('');
         contactHints();
@@ -449,14 +475,14 @@
     $('countryCode').value = BUSINESS.countryCode || '+679';
   }
   function contactHints() {
+    $('emailHint').textContent = '(required)';
     if (state.clientType === 'returning') {
-      $('phoneHint').textContent = $('igHint').textContent = $('emailHint').textContent = '(if you used it)';
+      $('phoneHint').textContent = $('igHint').textContent = '(optional)';
       return;
     }
     var need = NEED[state.contact];
     $('phoneHint').textContent = need === 'phone' ? '(for ' + state.contact + ')' : '(optional)';
     $('igHint').textContent = need === 'instagram' ? '' : '(optional)';
-    $('emailHint').textContent = need === 'email' ? '' : '(optional)';
   }
 
   /* ---------- step 2 ---------- */
@@ -466,8 +492,18 @@
       ['measured', 'Tape & ruler', 'Measure at home in mm'],
       ['requestkit', 'I need a sizing kit', "$5 · we'll arrange one for you"],
     ];
-    if (state.clientType === 'returning') opts.unshift(['onfile', 'Use my sizes from last time', 'Finding your sizes…']);
-    renderWelcome();
+    var v = verifiedNow();
+    if (state.clientType === 'returning') opts.unshift(['onfile', 'Use my sizes from last time', v && v.found ? v.label + ' · same fit as last time' : 'Same fit as last time']);
+    $('sizeLede').textContent = state.clientType === 'returning'
+      ? (v && v.firstName ? 'Shall we use the sizes from your last order?' : 'Welcome back. Shall we use the sizes from your last order?')
+      : 'Every set is made to your nails, so sizing comes first.';
+    $('welcomeBack').hidden = !(v && v.firstName);
+    $('welcomeName').textContent = v ? v.firstName : '';
+    var rows = v ? onfileRows(v) : [];
+    $('onfileSizes').innerHTML = rows.map(function (r) { return '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>'; }).join('');
+    $('onfileSizes').hidden = !rows.length;
+    $('onfileTip').textContent = rows.length ? "Here are the sizes from your last order. We'll use these unless you choose another option."
+      : "We'll use the sizes from your last order and confirm them with you when we message you. If your nails have changed, choose another option instead.";
     $('sizeChoices').innerHTML = opts.map(function (o) {
       return '<button type="button" class="choice" data-size="' + o[0] + '" aria-pressed="false"><b>' + o[1] + '</b><span>' + o[2] + '</span></button>';
     }).join('');
@@ -475,41 +511,17 @@
     [].forEach.call($('sizeChoices').querySelectorAll('.choice'), function (b) {
       b.addEventListener('click', function () { press('#sizeChoices .choice', b); setSizeMethod(b.dataset.size); });
     });
-    renderOnfile();
+    if (v && v.found) { var ob = document.querySelector('[data-size=onfile]'); press('#sizeChoices .choice', ob); setSizeMethod('onfile'); }
   }
 
-  /* ---------- returning clients: kit and sizes from their last order ---------- */
-  function lookupKey() { return [fullPhone().replace(/[^\d]/g, ''), $('email').value.trim().toLowerCase(), $('instagram').value.trim().replace(/^@+/, '').toLowerCase()].join('|'); }
-  function lookupOnfile() {
-    var key = lookupKey();
-    if (state.onfileKey === key) return;
-    state.onfileKey = key; state.onfile = 'loading'; state.welcomeName = ''; renderWelcome(); renderOnfile();
-    run('lookupSizes', { phone: $('phone').value, countryCode: $('countryCode').value, email: $('email').value, instagram: $('instagram').value })
-      .then(function (r) {
-        if (state.onfileKey !== key) return;
-        state.welcomeName = r && r.firstName ? r.firstName : '';
-        state.onfile = r && r.found ? r : null;
-        renderWelcome(); renderOnfile();
-      })
-      .catch(function () { if (state.onfileKey === key) { state.welcomeName = ''; state.onfile = { found: false, failed: true }; renderWelcome(); renderOnfile(); } });
+  /* ---------- returning clients: two-factor email code ---------- */
+  // Nothing about a client is shown until they enter the code we email to the address on their record.
+  function emailNow() { return $('email').value.trim().toLowerCase(); }
+  function verifiedNow() { return state.verified && state.verified.email === emailNow() && state.clientType === 'returning' ? state.verified : null; }
+  function resetVerify() {
+    state.verified = null; state.codeFor = ''; state.codeSkipped = '';
+    $('codePanel').hidden = true; $('otp').value = '';
   }
-  function renderWelcome() {
-    var name = state.clientType === 'returning' ? state.welcomeName : '';
-    $('welcomeBack').hidden = !name;
-    $('welcomeName').textContent = name;
-    $('sizeLede').textContent = state.clientType !== 'returning' ? 'Every set is made to your nails, so sizing comes first.'
-      : name ? 'Shall we use the sizes we already have for you?' : 'Welcome back. Shall we use the sizes we already have for you?';
-  }
-  // "Not you?": forget the lookup and send them back to enter their own details.
-  $('notYou').addEventListener('click', function () {
-    ['phone', 'email', 'instagram'].forEach(function (id) { $(id).value = ''; });
-    state.onfileKey = ''; state.onfile = null; state.welcomeName = '';
-    renderWelcome();
-    buildSizeChoices();
-    go(1);
-    $('returnHint').textContent = 'No problem. Enter the mobile number, Instagram or email you used when you ordered before.';
-    $('phone').focus();
-  });
   function onfileRows(o) {
     if (!o || !o.found) return [];
     var rows = [['Kit', esc(o.label)]];
@@ -521,26 +533,55 @@
     });
     return rows;
   }
-  function renderOnfile() {
-    var btn = document.querySelector('[data-size=onfile]');
-    if (!btn || state.clientType !== 'returning') return;
-    var o = state.onfile, span = btn.querySelector('span');
-    if (o === 'loading') {
-      btn.hidden = false; span.textContent = 'Finding your sizes…';
-    } else if (o && o.found) {
-      btn.hidden = false; span.textContent = o.label + ' · same fit as last time';
-      $('onfileTip').textContent = "Here are the sizes from your last order. We'll use these unless you choose another option.";
-      $('onfileSizes').innerHTML = onfileRows(o).map(function (r) { return '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>'; }).join('');
-      $('onfileSizes').hidden = false; $('onfileNote').hidden = false;
-      if (!state.sizeMethod) { press('#sizeChoices .choice', btn); setSizeMethod('onfile'); }
-    } else {
-      // Not found (or the lookup failed): still allow "sizes on file" so staff can check, but don't preselect it.
-      btn.hidden = false; span.textContent = o && o.failed ? 'Same fit as last time' : "We'll check your record";
-      $('onfileTip').textContent = o && o.failed ? "We'll use the sizes we have on file for you."
-        : "We couldn't find sizes for those details. We'll check your record when we message you, or choose another option to add sizes now.";
-      $('onfileSizes').hidden = true; $('onfileNote').hidden = true;
-    }
+  function busy(on) { $('next').disabled = on; $('next').textContent = on ? 'One moment…' : 'Continue'; }
+  function sendCode() {
+    busy(true);
+    return run('sendCode', { email: emailNow() }).then(function (r) {
+      busy(false);
+      if (!r || !r.ok) { showErr((r && r.error) || "We couldn't send a code just now. You can continue without it."); $('codePanel').hidden = false; return; }
+      state.codeFor = emailNow();
+      $('codePanel').hidden = false;
+      $('otpMsg').textContent = "If " + emailNow() + " is on file, we've emailed it a 6-digit code (two-factor authentication). It works for 10 minutes. Check your junk folder if you can't see it.";
+      $('otp').focus();
+    }).catch(function () { busy(false); $('codePanel').hidden = false; showErr("We couldn't send a code just now. You can continue without it."); });
   }
+  function checkOtp() {
+    var code = $('otp').value.replace(/\D/g, '');
+    if (code.length !== 6) { mark('otp', true); showErr('Enter the 6-digit code from your email, or choose "Continue without a code".'); return; }
+    mark('otp', false); busy(true);
+    run('verifyCode', { email: emailNow(), code: code }).then(function (r) {
+      busy(false);
+      if (!r || !r.ok) { mark('otp', true); showErr((r && r.error) || "That code isn't right."); return; }
+      state.verified = Object.assign({ email: emailNow() }, r);
+      buildSizeChoices();
+      go(2);
+    }).catch(function () { busy(false); showErr("We couldn't check that code just now. You can continue without it."); });
+  }
+  function setupVerify() {
+    $('email').addEventListener('input', function () {
+      if (state.verified && state.verified.email !== emailNow()) { state.verified = null; buildSizeChoices(); }
+      if (state.codeFor && state.codeFor !== emailNow()) { state.codeFor = ''; $('codePanel').hidden = true; $('otp').value = ''; }
+    });
+    $('otp').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); checkOtp(); } });
+    $('resendCode').addEventListener('click', function () { showErr(''); $('otp').value = ''; sendCode(); });
+    $('skipCode').addEventListener('click', function () { state.codeSkipped = emailNow(); showErr(''); buildSizeChoices(); go(2); });
+    $('notYou').addEventListener('click', function () {
+      ['email', 'phone', 'instagram'].forEach(function (id) { $(id).value = ''; });
+      resetVerify();
+      buildSizeChoices();
+      go(1);
+      $('returnHint').textContent = 'No problem. Enter your own email and we\'ll send you a one-time code to confirm it\'s you.';
+      $('email').focus();
+    });
+  }
+  // Called when a returning client presses Continue on step 1. Returns true to move on.
+  function returningGate() {
+    if (verifiedNow() || state.codeSkipped === emailNow()) return true;
+    if (state.codeFor === emailNow() && !$('codePanel').hidden) { checkOtp(); return false; }
+    sendCode();
+    return false;
+  }
+
   function setSizeMethod(m) {
     state.sizeMethod = m;
     $('kitPanel').hidden = m !== 'kit';
@@ -731,11 +772,10 @@
       if (!state.clientType) return showErr('Let us know if you’re new or returning.'), false;
       if (state.clientType === 'returning') {
         var pd = $('phone').value.replace(/[^\d]/g, ''), e2 = $('email').value.trim(), i2 = $('instagram').value.trim().replace(/^@+/, '');
-        if (!pd && !e2 && !i2) { mark('phone', true); return showErr('Enter the mobile number, Instagram or email you used last time.'), false; }
-        mark('phone', false);
+        if (!mark('email', !e2)) return showErr('Please enter your email. We use it to send you a one-time code (two-factor authentication).'), false;
+        if (!mark('email', !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e2))) return showErr('Please check your email address.'), false;
         if (!mark('phone', pd && pd.length < 7)) return showErr('Please check your mobile number.'), false;
         if (!mark('instagram', i2 && !/^[A-Za-z0-9._]{1,30}$/.test(i2.replace(/^.*instagram\.com\//i, '').replace(/[/?].*$/, '')))) return showErr('Please check your Instagram handle.'), false;
-        if (!mark('email', e2 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e2))) return showErr('Please check your email address.'), false;
         return true;
       }
       if (!mark('name', !$('name').value.trim())) return showErr('Please add your name.'), false;
@@ -745,7 +785,8 @@
       var em = $('email').value.trim(), ig = $('instagram').value.trim().replace(/^@+/, '');
       if (!mark('phone', (need === 'phone' && phoneDigits.length < 7) || (phoneDigits && phoneDigits.length < 7))) return showErr('Please add your mobile number so we can reach you on ' + (need === 'phone' ? state.contact : 'it') + '.'), false;
       if (!mark('instagram', (need === 'instagram' && !ig) || (ig && !/^[A-Za-z0-9._]{1,30}$/.test(ig.replace(/^.*instagram\.com\//i, '').replace(/[/?].*$/, ''))))) return showErr('Please check your Instagram handle.'), false;
-      if (!mark('email', (need === 'email' && !em) || (em && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)))) return showErr('Please check your email address.'), false;
+      if (!mark('email', !em)) return showErr('Please add your email. We use it for two-factor authentication: a one-time code so only you can use your saved details.'), false;
+      if (!mark('email', !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em))) return showErr('Please check your email address.'), false;
       if (!$('consentStore').checked) return showErr('Please tick the box so we can keep your sizes on file.'), false;
     }
     if (n === 2) {
@@ -784,15 +825,15 @@
   }
   $('next').addEventListener('click', function () {
     if (!validStep(state.step)) return;
-    if (state.step === 1 && state.clientType === 'returning') lookupOnfile();
+    if (state.step === 1 && state.clientType === 'returning' && !returningGate()) return;
     if (state.step < steps.length) go(state.step + 1); else send();
   });
   $('back').addEventListener('click', function () { if (state.step > 1) go(state.step - 1); });
 
   function sizesText() {
     if (state.sizeMethod === 'onfile') {
-      var of = state.onfile && state.onfile.found ? state.onfile : null;
-      return of ? 'Same as last time<br>' + onfileRows(of).map(function (r) { return r[0] + ': ' + r[1]; }).join('<br>') : 'Sizes on file';
+      var rows = onfileRows(verifiedNow());
+      return rows.length ? 'Same as last time<br>' + rows.map(function (r) { return r[0] + ': ' + r[1]; }).join('<br>') : 'Same as last time';
     }
     if (state.sizeMethod === 'requestkit') return 'Sizing kit requested <span class="tiny">($5)</span>';
     var src = state.sizeMethod === 'kit' ? 'kit' : 'mm';
@@ -860,6 +901,7 @@
       consentStore: state.clientType === 'returning' ? false : $('consentStore').checked,
       website: $('website').value,
       consentMarketing: $('consentMarketing').checked,
+      verifyToken: verifiedNow() ? verifiedNow().token : '',
       style: state.style, length: state.length, comments: $('comments').value, neededBy: $('neededBy').value,
       discountCode: normCode($('discountCode').value),
       sizing: { method: state.sizeMethod },
@@ -914,7 +956,7 @@
       $('sending').hidden = true; $('done').hidden = false;
       renderTimeline();
       $('refPill').textContent = 'REF ' + res.ref;
-      var first = state.clientType === 'returning' ? (state.welcomeName || '') : $('name').value.trim().split(' ')[0];
+      var first = state.clientType === 'returning' ? (verifiedNow() ? verifiedNow().firstName : '') : $('name').value.trim().split(' ')[0];
       $('doneLede').textContent = 'Thank you' + (first ? ', ' + first : '') + '. Your design request is with us.';
       $('emailNote').textContent = "We'll " + reachText() + '. '
         + ($('email').value.trim() ? 'A copy is on its way to ' + $('email').value.trim() + '.' : 'Take a screenshot of this page to keep your reference handy.');
